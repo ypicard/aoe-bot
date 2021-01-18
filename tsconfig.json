@@ -1,0 +1,10 @@
+{
+  "include": ["./src/**/*", "./types/**/*"],
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "typeRoots": ["./node_modules/@types", "./types"]
+  }
+}

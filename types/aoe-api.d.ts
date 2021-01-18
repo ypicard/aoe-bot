@@ -1,0 +1,22 @@
+export type AOEProfile = {
+  steam_id: string;
+  profile_id: number;
+  rank: number;
+  rating: number;
+  highest_rating: number;
+  previous_rating: number;
+  country_code: string;
+  name: string;
+  known_name: null;
+  avatar: string;
+  avatarfull: string;
+  avatarmedium: string;
+  num_games: number;
+  streak: number;
+  num_wins: number;
+  win_percent: number;
+  rating24h: number;
+  games24h: number;
+  wins24h: number;
+  last_match: number;
+};

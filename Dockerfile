@@ -7,7 +7,7 @@ RUN mkdir -p /usr/node/app
 WORKDIR /usr/node/app
 
 # Copy sources
-COPY package.json package-lock.json  ./
+COPY package.json package-lock.json tsconfig.json ./
 COPY ./src ./src
 
 # Install dependencies
@@ -15,4 +15,4 @@ RUN npm install && npm cache clean --force
 
 USER node
 
-CMD ["node", "-r", "dotenv/config", "-r", "./src/index.js"]
+CMD ["./node_modules/.bin/ts-node-transpile-only", "-r", "dotenv/config", "./src/index.ts"]

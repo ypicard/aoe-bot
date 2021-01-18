@@ -1,0 +1,63 @@
+parser: '@typescript-eslint/parser'
+extends:
+  - eslint:recommended
+  - plugin:@typescript-eslint/eslint-recommended
+  - plugin:@typescript-eslint/recommended # Recommended TS rules
+  - plugin:@typescript-eslint/recommended-requiring-type-checking
+  - prettier/@typescript-eslint # Disables eslint rules conflicting with prettier
+  - plugin:prettier/recommended # Enables prettier rules (should always be last)
+parserOptions:
+  ecmaVersion: 2018
+  sourceType: module
+  project: './tsconfig.json'
+plugins: ['@typescript-eslint', 'import']
+env:
+  jest: true
+  node: true
+  es6: true
+rules:
+  '@typescript-eslint/explicit-function-return-type': [error, { allowExpressions: true }]
+  '@typescript-eslint/member-ordering': 2
+  '@typescript-eslint/no-empty-interface': 0
+  '@typescript-eslint/no-explicit-any': 0
+  '@typescript-eslint/no-parameter-properties': 0
+  '@typescript-eslint/no-unnecessary-qualifier': 2
+  '@typescript-eslint/no-unsafe-assignment': 0
+  '@typescript-eslint/no-unsafe-call': 0
+  '@typescript-eslint/no-unsafe-member-access': 0
+  '@typescript-eslint/no-use-before-define': [error, { functions: false, classes: true }]
+  '@typescript-eslint/no-useless-constructor': 2
+  '@typescript-eslint/prefer-readonly': 2
+  '@typescript-eslint/require-array-sort-compare': 2
+  'curly': 2
+  'import/imports-first': [error, absolute-first]
+  'import/newline-after-import': error
+  'no-alert': 2
+  'no-console': 0
+  'no-else-return': 2
+  'no-eval': 2
+  'no-lone-blocks': 2
+  'no-loop-func': 2
+  'no-magic-numbers': [0, { ignoreArrayIndexes: true, enforceConst: true }]
+  'no-shadow': [error, { hoist: functions }]
+  'no-unneeded-ternary': 2
+  'no-var': 2
+  'padding-line-between-statements':
+    - error
+    - { blankLine: always, prev: '*', next: return }
+    - { blankLine: always, prev: block-like, next: '*' }
+  'prefer-const': 2
+  'radix': 2
+  'no-shadow': 0
+overrides:
+  - files: ['*.ts']
+    rules:
+      '@typescript-eslint/explicit-member-accessibility': [error, { overrides: { constructors: 'no-public' } } ]
+  - files: ['*.spec.ts', '*.test.ts']
+    parserOptions:
+      project: './tsconfig-test.json'
+    rules:
+      '@typescript-eslint/unbound-method': 0
+  - files: ['./migrations/*.js']
+    parserOptions:
+      project: './tsconfig-migrations.json'
