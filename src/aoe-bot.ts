@@ -67,7 +67,7 @@ ${availableModesStr}
                 .then((res) => {
                     const outputMsg = AOEHelper.formatLeaderboard({ profile: res[0], gameMode });
 
-                    return this.telegram.sendMessage(msg.chat.id, outputMsg);
+                    return this.telegram.sendMessage(msg.chat.id, outputMsg, { parse_mode: 'Markdown' });
                 })
                 .catch((err) => this.errorHandler(msg.chat.id, err));
         });
@@ -104,7 +104,7 @@ ${availableModesStr}
                     const battle = AOEHelper.leaderboardBattle({ profile1, profile2 });
                     const outputMsg = AOEHelper.formatleaderboardBattle({ gameMode, battle, profile1, profile2 });
 
-                    return this.telegram.sendMessage(msg.chat.id, outputMsg);
+                    return this.telegram.sendMessage(msg.chat.id, outputMsg, { parse_mode: 'Markdown' });
                 })
                 .catch((err) => this.errorHandler(msg.chat.id, err));
         });

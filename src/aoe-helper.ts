@@ -6,15 +6,15 @@ export class AOEHelper {
     public static formatLeaderboard({ profile, gameMode }: { profile: AOEProfile; gameMode: GAME_MODES }): string {
         return `
 Game mode: ${gameMode}
-Player: ${profile.name}
-Rank: ${profile.rank}
-Rating: ${profile.rating}
-Highest rating: ${profile.highest_rating}
-Games: ${profile.num_games}
-Streak: ${profile.streak}
-Wins: ${profile.num_wins}
-Losses: ${profile.num_games - profile.num_wins}
-Win ratio: ${profile.win_percent}`;
+*=== ${profile.name} ===*
+*Rank:* ${profile.rank}
+*Rating:* ${profile.rating}
+*Rating+:* ${profile.highest_rating}
+*Games:* ${profile.num_games}
+*Streak:* ${addSign(profile.streak)}
+*Wins:* ${profile.num_wins}
+*Losses:* ${profile.num_games - profile.num_wins}
+*Ratio:* ${profile.win_percent}%`;
     }
 
     public static leaderboardBattle({
@@ -25,9 +25,11 @@ Win ratio: ${profile.win_percent}`;
         profile2: AOEProfile;
     }): LeaderboardBattle {
         return {
-            wins: profile2.num_wins - profile1.num_wins,
-            rating: profile2.rating - profile1.rating,
-            rank: profile2.rank - profile1.rank,
+            wins: profile1.num_wins - profile2.num_wins,
+            rating: profile1.rating - profile2.rating,
+            highestRating: profile1.highest_rating - profile2.highest_rating,
+            rank: profile1.rank - profile2.rank,
+            numGames: profile1.num_games - profile2.num_games,
         };
     }
 
@@ -42,14 +44,18 @@ Win ratio: ${profile.win_percent}`;
         profile1: AOEProfile;
         profile2: AOEProfile;
     }): string {
-        const addSign = (a: number): string => (a >= 0 ? '+' : '') + a.toString();
-
         return `
 Game mode: ${gameMode}
-Player 1: ${profile1.name}
-Player 2: ${profile2.name}
-Rank: ${addSign(battle.rank)}
-Rating: ${addSign(battle.rating)}
-Wins: ${addSign(battle.wins)}`;
+*=== ${profile1.name} VS ${profile2.name} ===*
+*Rank:* #${profile1.rank} | #${profile2.rank} | _${addSign(battle.rank)}_
+*Rating:* ${profile1.rating} | ${profile2.rating} | _${addSign(battle.rating)}_
+*Rating+:* ${profile1.highest_rating} | ${profile2.highest_rating} | _${addSign(battle.highestRating)}_
+*Games:* ${profile1.num_games} | ${profile2.num_games} | _${addSign(battle.numGames)}_
+*Wins:* ${profile1.num_wins} | ${profile2.num_wins} | _${addSign(battle.wins)}_
+`;
     }
+}
+
+function addSign(a: number): string {
+    return (a >= 0 ? '+' : '') + a.toString();
 }
