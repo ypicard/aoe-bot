@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { AOEProfile } from '../types/aoe-api';
+import { AOEMatch, AOEProfile } from '../types/aoe-api';
 
 export enum LEADERBOARD_IDS {
     unranked = 0,
@@ -17,6 +17,12 @@ export enum GAME_MODES {
     teamDeathmatch = 'dm-team',
 }
 
+export enum MATCH_SLOT_TYPES {
+    Human = 1,
+    Empty = -1,
+    Bot = 3,
+}
+
 export class AOEApi {
     private readonly baseUrl = 'https://aoe2.net';
 
@@ -27,40 +33,24 @@ export class AOEApi {
             .then((res) => res.json())
             .then((res) => {
                 if (res.data.length === 0) {
-                    throw new Error(`No rating found for '${search}' in ${gameMode}`);
+                    throw new Error(`No rating found for '${search}' in ${gameMode}.`);
                 }
 
                 return res.data as AOEProfile[];
             });
     }
 
-    // public playerMatchHistory({ steamId = '', steamIds = [], count = 10 }): any {
-    //     let url = `${this.baseUrl}/api/player/matches?game=aoe2de&count=${count}`;
+    public ongoing(): Promise<AOEMatch[]> {
+        const url = `${this.baseUrl}/matches/aoe2de/ongoing`;
 
-    //     if (steamId) {
-    //         url = url + `&steam_id=${steamId}`;
-    //     } else if (steamIds.length > 0) {
-    //         url = url + `&steam_ids=${steamIds.join(',')}`;
-    //     } else {
-    //         throw new Error('One of `steamId` or `steamIds` args is required.');
-    //     }
+        return fetch(url)
+            .then((res) => res.json())
+            .then((res) => {
+                if (res.data.length === 0) {
+                    throw new Error(`No ongoing matches found.`);
+                }
 
-    //     return fetch(url).then((res) => res.json());
-    // }
-
-    // public playerRatingHistory({
-    //     steamId = '',
-    //     leaderboard,
-    //     count = 10,
-    // }: {
-    //     steamId: string;
-    //     leaderboard: LEADERBOARD_IDS;
-    //     count: number;
-    // }): any {
-    //     const url = `${this.baseUrl}/api/player/ratinghistory?game=aoe2de&leaderboard_id=${LEADERBOARD_IDS[leaderboard]}&steam_id=${steamId}&count=${count}`;
-
-    //     return fetch(url).then((res) => res.json());
-    // }
+                return res.data as AOEMatch[];
+            });
+    }
 }
-
-module.exports = { AOEApi, GAME_MODES, LEADERBOARD_IDS };

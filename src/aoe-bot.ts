@@ -21,6 +21,7 @@ export class AOEBot {
         this.setupStart();
         this.setupLeaderboard();
         this.setupBattle();
+        this.setupLive();
     }
 
     private setupStart(): void {
@@ -30,6 +31,7 @@ export class AOEBot {
                 `Available commands:
 - Search for a player's leaderboard: /leaderboard <mode> <name>
 - Compare player profiles: /battle <mode> <name1> vs <name2>
+- Lookup ongoing matches: /live <name>
 
 ${availableModesStr}
 `
@@ -105,6 +107,42 @@ ${availableModesStr}
                     const outputMsg = AOEHelper.formatleaderboardBattle({ gameMode, battle, profile1, profile2 });
 
                     return this.telegram.sendMessage(msg.chat.id, outputMsg, { parse_mode: 'Markdown' });
+                })
+                .catch((err) => this.errorHandler(msg.chat.id, err));
+        });
+    }
+
+    private setupLive(): void {
+        this.telegram.onText(/\/live/, (msg): any => {
+            const m = /\/live (?<search>.*)/.exec(msg.text || '');
+            if (!m || !m.groups) {
+                return this.telegram.sendMessage(
+                    msg.chat.id,
+                    `Specify a player name:
+/live Adrien Lerai
+  `
+                );
+            }
+
+            const { search } = m.groups as { search: string };
+
+            return this.aoeApi
+                .ongoing()
+                .then((res) => {
+                    const match = res.find((match) => {
+                        return match.players.findIndex((pl) => pl.name === search) !== -1;
+                    });
+
+                    if (!match) {
+                        return this.telegram.sendMessage(
+                            msg.chat.id,
+                            `No ongoing match found with player '${search}'.`
+                        );
+                    }
+
+                    const outputMsg = AOEHelper.formatLiveMatch({ match });
+
+                    return this.telegram.sendMessage(msg.chat.id, outputMsg, { parse_mode: 'HTML' });
                 })
                 .catch((err) => this.errorHandler(msg.chat.id, err));
         });
