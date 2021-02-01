@@ -1,61 +1,41 @@
-import { Duel, LeaderboardBattle } from '../types';
+import { Duel, Battle } from '../types';
 import { AOEMatch, AOEPlayer, AOEProfile } from '../types/aoe-api';
 import { MATCH_SLOT_TYPES, GAME_MODES } from './aoe-api';
 
 export class AOEHelper {
-    public static formatLeaderboard({ profile, gameMode }: { profile: AOEProfile; gameMode: GAME_MODES }): string {
+    public static leaderboard({ profile, gameMode }: { profile: AOEProfile; gameMode: GAME_MODES }): string {
         return `
 Game mode: ${gameMode}
-*=== ${profile.name} ===*
-*Rank:* ${profile.rank}
-*Rating:* ${profile.rating}
-*Rating+:* ${profile.highest_rating}
-*Games:* ${profile.num_games}
-*Streak:* ${addSign(profile.streak)}
-*Wins:* ${profile.num_wins}
-*Losses:* ${profile.num_games - profile.num_wins}
-*Ratio:* ${profile.win_percent}%`;
+<b>=== ${profile.name} ===</b>
+<b>Rank:</b> ${profile.rank}
+<b>Rating:</b> ${profile.rating}
+<b>Rating+:</b> ${profile.highest_rating}
+<b>Games:</b> ${profile.num_games}
+<b>Streak:</b> ${addSign(profile.streak)}
+<b>Wins:</b> ${profile.num_wins}
+<b>Losses:</b> ${profile.num_games - profile.num_wins}
+<b>Ratio:</b> ${profile.win_percent}%`;
     }
 
-    public static leaderboardBattle({
-        profile1,
-        profile2,
-    }: {
-        profile1: AOEProfile;
-        profile2: AOEProfile;
-    }): LeaderboardBattle {
-        return {
-            wins: profile1.num_wins - profile2.num_wins,
-            rating: profile1.rating - profile2.rating,
-            highestRating: profile1.highest_rating - profile2.highest_rating,
-            rank: profile1.rank - profile2.rank,
-            games: profile1.num_games - profile2.num_games,
-        };
-    }
-
-    public static formatleaderboardBattle({
+    public static battle({
         gameMode,
         battle,
-        profile1,
-        profile2,
     }: {
         gameMode: GAME_MODES;
-        battle: LeaderboardBattle;
-        profile1: AOEProfile;
-        profile2: AOEProfile;
+        battle: Battle;
     }): string {
         return `
 Game mode: ${gameMode}
-*=== ${profile1.name} VS ${profile2.name} ===*
-*Rank:* #${profile1.rank} | #${profile2.rank} | _${addSign(battle.rank)}_
-*Rating:* ${profile1.rating} | ${profile2.rating} | _${addSign(battle.rating)}_
-*Rating+:* ${profile1.highest_rating} | ${profile2.highest_rating} | _${addSign(battle.highestRating)}_
-*Games:* ${profile1.num_games} | ${profile2.num_games} | _${addSign(battle.games)}_
-*Wins:* ${profile1.num_wins} | ${profile2.num_wins} | _${addSign(battle.wins)}_
+<b>=== ${battle.name1} VS ${battle.name2} ===</b>
+<b>Rank:</b> #${battle.rank1} | #${battle.rank2} | <i>${addSign(battle.rank)}</i>
+<b>Rating:</b> ${battle.rating1} | ${battle.rating2} | <i>${addSign(battle.rating)}</i>
+<b>Rating+:</b> ${battle.highestRating1} | ${battle.highestRating2} | <i>${addSign(battle.highestRating)}</i>
+<b>Games:</b> ${battle.games} | ${battle.games} | <i>${addSign(battle.games)}</i>
+<b>Wins:</b> ${battle.wins} | ${battle.wins} | <i>${addSign(battle.wins)}</i>
 `;
     }
 
-    public static formatLiveMatch({ match }: { match: AOEMatch }): string {
+    public static live({ match }: { match: AOEMatch }): string {
         const teams = match.players.reduce((acc, cur) => {
             if (cur.slotType !== MATCH_SLOT_TYPES.Human && cur.slotType !== MATCH_SLOT_TYPES.Bot) {
                 return acc;
@@ -106,9 +86,9 @@ ${team.map(getPlayerLine).join('\n')}`;
 `;
     }
 
-    public static duel({ duel, search1, search2 }: { duel: Duel; search1: string; search2: string }): string {
+    public static duel({ duel }: { duel: Duel; }): string {
         return `
-<b>=== ${search1} VS ${search2} ===</b>
+<b>=== ${duel.name1} VS ${duel.name2} ===</b>
 <b>Games:</b> ${duel.games}
 <b>Wins:</b> ${duel.wins}
 <b>Ratio:</b> ${duel.winPercent}%

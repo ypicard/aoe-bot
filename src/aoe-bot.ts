@@ -1,17 +1,12 @@
 import TelegramBot from 'node-telegram-bot-api';
-import { AOE } from './aoe';
-import { AOEApi, GAME_MODES } from './aoe-api';
+import { AOE, availableModesStr } from './aoe';
+import { GAME_MODES } from './aoe-api';
 import { AOEHelper } from './aoe-helper';
-
-const availableModesStr = 'Available modes: rm-team, rm-1v1, unranked, dm-1v1, dm-team';
-
 export class AOEBot {
-    private readonly aoeApi: AOEApi;
     private readonly telegram: TelegramBot;
     private readonly aoe: AOE;
 
-    constructor({ token, aoeApi, aoe }: { token: string; aoe: AOE; aoeApi: AOEApi }) {
-        this.aoeApi = aoeApi;
+    constructor({ token, aoe }: { token: string; aoe: AOE }) {
         this.aoe = aoe;
         this.telegram = new TelegramBot(token, { polling: true });
         this.telegram.on('polling_error', console.error);
@@ -59,22 +54,13 @@ ${availableModesStr}
             }
 
             const { search, gameMode } = m.groups as { search: string; gameMode: GAME_MODES };
-            if (!Object.values(GAME_MODES).includes(gameMode)) {
-                return this.telegram.sendMessage(
-                    msg.chat.id,
-                    `Unknown game mode: '${gameMode}'
 
-${availableModesStr}
-`
-                );
-            }
-
-            this.aoeApi
-                .leaderboard({ gameMode, search })
+            this.aoe
+                .leaderboard({ search, gameMode })
                 .then((profile) => {
-                    const outputMsg = AOEHelper.formatLeaderboard({ profile, gameMode });
+                    const outputMsg = AOEHelper.leaderboard({ profile, gameMode });
 
-                    return this.telegram.sendMessage(msg.chat.id, outputMsg, { parse_mode: 'Markdown' });
+                    return this.telegram.sendMessage(msg.chat.id, outputMsg, { parse_mode: 'HTML' });
                 })
                 .catch((err) => this.errorHandler(msg.chat.id, err));
         });
@@ -100,15 +86,12 @@ ${availableModesStr}
                 gameMode: GAME_MODES;
             };
 
-            return Promise.all([
-                this.aoeApi.leaderboard({ gameMode, search: search1 }),
-                this.aoeApi.leaderboard({ gameMode, search: search2 }),
-            ])
-                .then(([profile1, profile2]) => {
-                    const battle = AOEHelper.leaderboardBattle({ profile1, profile2 });
-                    const outputMsg = AOEHelper.formatleaderboardBattle({ gameMode, battle, profile1, profile2 });
+            return this.aoe
+                .battle({ gameMode, search1, search2 })
+                .then((battle) => {
+                    const outputMsg = AOEHelper.battle({ gameMode, battle });
 
-                    return this.telegram.sendMessage(msg.chat.id, outputMsg, { parse_mode: 'Markdown' });
+                    return this.telegram.sendMessage(msg.chat.id, outputMsg, { parse_mode: 'HTML' });
                 })
                 .catch((err) => this.errorHandler(msg.chat.id, err));
         });
@@ -128,13 +111,9 @@ ${availableModesStr}
 
             const { search } = m.groups as { search: string };
 
-            return this.aoeApi
-                .ongoing()
-                .then((res) => {
-                    const match = res.find((match) => {
-                        return match.players.findIndex((pl) => pl.name === search) !== -1;
-                    });
-
+            return this.aoe
+                .live({ search })
+                .then((match) => {
                     if (!match) {
                         return this.telegram.sendMessage(
                             msg.chat.id,
@@ -142,7 +121,7 @@ ${availableModesStr}
                         );
                     }
 
-                    const outputMsg = AOEHelper.formatLiveMatch({ match });
+                    const outputMsg = AOEHelper.live({ match });
 
                     return this.telegram.sendMessage(msg.chat.id, outputMsg, { parse_mode: 'HTML' });
                 })
@@ -169,7 +148,14 @@ ${availableModesStr}
             return this.aoe
                 .duel({ search1, search2 })
                 .then(async (duel) => {
-                    const outputMsg = await AOEHelper.duel({ duel, search1, search2 });
+                    if (duel.games === 0) {
+                        return this.telegram.sendMessage(
+                            msg.chat.id,
+                            `Players '${duel.name1}' and '${duel.name2}' have never played against one another.`
+                        );
+                    }
+
+                    const outputMsg = await AOEHelper.duel({ duel });
 
                     return this.telegram.sendMessage(msg.chat.id, outputMsg, { parse_mode: 'HTML' });
                 })
