@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { AOEMatch, AOEProfile } from '../types/aoe-api';
+import { AOEHistoryMatch, AOEMatch, AOEProfile } from '../types/aoe-api';
 
 export enum LEADERBOARD_IDS {
     unranked = 0,
@@ -26,17 +26,23 @@ export enum MATCH_SLOT_TYPES {
 export class AOEApi {
     private readonly baseUrl = 'https://aoe2.net';
 
-    public leaderboard({ gameMode, search }: { gameMode: GAME_MODES; search: string }): Promise<AOEProfile[]> {
+    public leaderboard({
+        gameMode = GAME_MODES.randomMap,
+        search,
+    }: {
+        gameMode?: GAME_MODES;
+        search: string;
+    }): Promise<AOEProfile> {
         const url = `${this.baseUrl}/leaderboard/aoe2de/${gameMode}?search[value]=${search}`;
 
         return fetch(url)
             .then((res) => res.json())
             .then((res) => {
                 if (res.data.length === 0) {
-                    throw new Error(`No rating found for '${search}' in ${gameMode}.`);
+                    throw new Error(`No player found for '${search}' in ${gameMode}.`);
                 }
 
-                return res.data as AOEProfile[];
+                return res.data[0] as AOEProfile;
             });
     }
 
@@ -52,5 +58,33 @@ export class AOEApi {
 
                 return res.data as AOEMatch[];
             });
+    }
+
+    public matches({ steamId = '', start = 0, count = 10 }): Promise<AOEHistoryMatch[]> {
+        let url = `${this.baseUrl}/api/player/matches?game=aoe2de&count=${count}&start=${start}`;
+
+        if (steamId) {
+            url = url + `&steam_id=${steamId}`;
+        } else {
+            throw new Error("'steamId' is required.");
+        }
+
+        return fetch(url).then((res) => res.json());
+    }
+    public async allMatches({ steamId = '' }): Promise<AOEHistoryMatch[]> {
+        const matches: AOEHistoryMatch[] = [];
+
+        while (true) {
+            const newMatches = await this.matches({
+                steamId,
+                count: 1000,
+                start: matches.length,
+            });
+            if (newMatches.length === 0) {
+                break;
+            }
+            matches.push(...newMatches);
+        }
+        return matches;
     }
 }

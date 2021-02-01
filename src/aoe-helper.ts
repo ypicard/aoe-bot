@@ -1,4 +1,4 @@
-import { LeaderboardBattle } from '../types';
+import { Duel, LeaderboardBattle } from '../types';
 import { AOEMatch, AOEPlayer, AOEProfile } from '../types/aoe-api';
 import { MATCH_SLOT_TYPES, GAME_MODES } from './aoe-api';
 
@@ -29,7 +29,7 @@ Game mode: ${gameMode}
             rating: profile1.rating - profile2.rating,
             highestRating: profile1.highest_rating - profile2.highest_rating,
             rank: profile1.rank - profile2.rank,
-            numGames: profile1.num_games - profile2.num_games,
+            games: profile1.num_games - profile2.num_games,
         };
     }
 
@@ -50,7 +50,7 @@ Game mode: ${gameMode}
 *Rank:* #${profile1.rank} | #${profile2.rank} | _${addSign(battle.rank)}_
 *Rating:* ${profile1.rating} | ${profile2.rating} | _${addSign(battle.rating)}_
 *Rating+:* ${profile1.highest_rating} | ${profile2.highest_rating} | _${addSign(battle.highestRating)}_
-*Games:* ${profile1.num_games} | ${profile2.num_games} | _${addSign(battle.numGames)}_
+*Games:* ${profile1.num_games} | ${profile2.num_games} | _${addSign(battle.games)}_
 *Wins:* ${profile1.num_wins} | ${profile2.num_wins} | _${addSign(battle.wins)}_
 `;
     }
@@ -103,6 +103,15 @@ ${Object.values(teams)
 ${team.map(getPlayerLine).join('\n')}`;
     })
     .join('\n\n')}
+`;
+    }
+
+    public static duel({ duel, search1, search2 }: { duel: Duel; search1: string; search2: string }): string {
+        return `
+<b>=== ${search1} VS ${search2} ===</b>
+<b>Games:</b> ${duel.games}
+<b>Wins:</b> ${duel.wins}
+<b>Ratio:</b> ${duel.winPercent}%
 `;
     }
 }

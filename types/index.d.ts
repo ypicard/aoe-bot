@@ -3,5 +3,11 @@ export type LeaderboardBattle = {
     rating: number;
     highestRating: number;
     rank: number;
-    numGames: number;
+    games: number;
+};
+
+export type Duel = {
+    games: number;
+    wins: number;
+    winPercent: number;
 };

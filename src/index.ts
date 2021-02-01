@@ -1,8 +1,10 @@
+import { AOE } from './aoe';
 import { AOEApi } from './aoe-api';
 import { AOEBot } from './aoe-bot';
 
 const { TELEGRAM_TOKEN = '' } = process.env;
 
 const aoeApi = new AOEApi();
-new AOEBot({ token: TELEGRAM_TOKEN, aoeApi });
+const aoe = new AOE({ aoeApi });
+new AOEBot({ token: TELEGRAM_TOKEN, aoeApi, aoe });
 console.log('AOE bot running');
