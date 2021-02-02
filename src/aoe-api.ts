@@ -1,14 +1,6 @@
 import fetch from 'node-fetch';
 import { AOEHistoryMatch, AOEMatch, AOEProfile } from '../types/aoe-api';
 
-export enum LEADERBOARD_IDS {
-    unranked = 0,
-    deathmatch = 1,
-    teamDeathmatch = 2,
-    randomMap = 3,
-    teamRandomMap = 4,
-}
-
 export enum GAME_MODES {
     teamRandomMap = 'rm-team',
     randomMap = 'rm-1v1',
@@ -71,6 +63,7 @@ export class AOEApi {
 
         return fetch(url).then((res) => res.json());
     }
+
     public async allMatches({ steamId = '' }): Promise<AOEHistoryMatch[]> {
         const matches: AOEHistoryMatch[] = [];
 
