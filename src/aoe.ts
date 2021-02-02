@@ -83,6 +83,10 @@ ${availableModesStr}
 
         const duel = { name1: player1.name, name2: player2.name, games: 0, wins: 0, winPercent: 0 };
         const res = matches1.reduce((acc, m) => {
+            if (m.players.length > 2) {
+                return acc; // only 1v1
+            }
+
             const pl1 = m.players.find((pl) => pl.steam_id === player1.steam_id);
             const pl2 = m.players.find((pl) => pl.steam_id === player2.steam_id);
 
